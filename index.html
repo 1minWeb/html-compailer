@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online HTML Compiler</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #input-container,
+        #output-container {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        #divider {
+            cursor: ew-resize;
+            width: 10px;
+            background-color: #ccc;
+            height: 100%;
+        }
+
+        textarea,
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            box-sizing: border-box;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+
+        #output-container {
+            border-left: 1px solid #ccc;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        button {
+            padding: 5px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="input-container">
+        <div id="controls">
+            <button onclick="clearCode()">Clear</button>
+            <button onclick="pasteCode()">Paste</button>
+            <button onclick="compileCode()">Compile</button>
+        </div>
+        <textarea id="input-code" placeholder="Enter your HTML code here..."></textarea>
+    </div>
+    <div id="divider"></div>
+    <div id="output-container">
+        <iframe id="output-frame"></iframe>
+    </div>
+
+    <script>
+        const divider = document.getElementById('divider');
+        const inputContainer = document.getElementById('input-container');
+        const outputContainer = document.getElementById('output-container');
+
+        let isResizing = false;
+
+        divider.addEventListener('mousedown', (event) => {
+            isResizing = true;
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', () => {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleMouseMove);
+            });
+        });
+
+        function handleMouseMove(event) {
+            if (isResizing) {
+                const mouseX = event.pageX;
+                const containerWidth = window.innerWidth;
+                const percentage = (mouseX / containerWidth) * 100;
+
+                inputContainer.style.flex = percentage + '%';
+                outputContainer.style.flex = 100 - percentage + '%';
+            }
+        }
+
+        function updateOutput() {
+            const inputCode = document.getElementById('input-code').value;
+            const outputFrame = document.getElementById('output-frame').contentDocument;
+
+            outputFrame.open();
+            outputFrame.write(inputCode);
+            outputFrame.close();
+        }
+
+        function clearCode() {
+            document.getElementById('input-code').value = '';
+            updateOutput();
+        }
+
+        function pasteCode() {
+            navigator.clipboard.readText().then((text) => {
+                document.getElementById('input-code').value = text;
+                updateOutput();
+            });
+        }
+
+        function compileCode() {
+            updateOutput();
+        }
+
+        // Update the output when the page loads
+        window.onload = updateOutput;
+
+        // Update the output when the input code changes
+        document.getElementById('input-code').addEventListener('input', updateOutput);
+    </script>
+</body>
+
+</html>
